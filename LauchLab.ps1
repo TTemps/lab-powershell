@@ -201,15 +201,3 @@ foreach ($vm in $listVMs) {
     }
     Invoke-Command -VMName $vm.Name -ScriptBlock $scriptConfigureDHCP -Credential $credentialsDC
 }
-$source = "C:\Users\Administrateur\Desktop\tp\Exo2\cop"
-$destination = "C:\tp"
-$vmName = "srv-DC-TTemps"
-
-# Get all files in the source directory
-$files = Get-ChildItem -Path $source -File -Recurse
-
-# Copy each file
-foreach ($file in $files) {
-    $dest = Join-Path -Path $destination -ChildPath $file.Name
-    Copy-VMFile -Name $vmName -SourcePath $file.FullName -DestinationPath $dest -FileSource Host
-}
