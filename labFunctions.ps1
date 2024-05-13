@@ -208,29 +208,3 @@ function Wait-VM {
     Author: Tristan Morel
     Date: 22/04/2022
 #>
-function Find-DisabledUser {
-    try {
-        Import-Module ActiveDirectory
-    } 
-    catch {
-        # Handle the error if the ActiveDirectory module is not available
-    }
-    
-    # Search for disabled user accounts
-    $disabledUsers = Get-ADUser -Filter 'Enabled -eq $false' | Where-Object { $_.SamAccountName -ne 'Invité' -and $_.SamAccountName -ne 'krbtgt' } | Select-Object SamAccountName, Name, Enabled
-    
-    # Display the disabled users in a grid view and allow the user to select one or more users
-    $selectedUsers = $disabledUsers | Out-GridView -Title "Select a user to enable" -PassThru
-    
-    # Check if a user was selected
-    if ($selectedUsers) {
-        foreach ($user in $selectedUsers) {
-            # Enable the selected user account
-            Enable-ADAccount -Identity $user.SamAccountName
-    
-            Write-Host "User $($user.SamAccountName) has been enabled."
-        }
-    } else {
-        Write-Host "No user was selected."
-    }
-}
