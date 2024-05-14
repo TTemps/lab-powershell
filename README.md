@@ -42,15 +42,16 @@ Each GUI component (`TextBox`, `ComboBox`) is tied to a specific configuration a
 
 ## Screenshots
 
-(Insert screenshots of the GUI here to provide visual context for users.)
+[![Lab Setup Tool](https://i.imgur.com/1Z2ZQ8V.png)](https://i.imgur.com/1Z2ZQ8V.png)
 
 ## Troubleshooting
 
 Ensure all paths and external scripts are correctly referenced. Check PowerShell execution policies if scripts do not run as expected.
+If you encounter any issues, please don't hesitate to open an issue on this repository or contact me directly.
 
 ## Author
 
-Tristan Morel
+Tristan Morel - TTemps
 
 ## License
 
