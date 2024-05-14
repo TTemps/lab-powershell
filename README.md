@@ -4,6 +4,7 @@ This PowerShell script provides a graphical user interface (GUI) to configure an
 
 ## Features
 
+- **Executable programme** that can be run on Windows systems with PowerShell 5.1 or higher.
 - **DC Configuration**: Setup domain controller with customizable options like name, OS, IP, and credentials.
 - **DHCP Scope Configuration**: Define start and end IP ranges, subnet masks, and descriptions for scopes.
 - **VM Configuration**: Setup VMs with options for operating system, number, and names.
@@ -18,6 +19,8 @@ This PowerShell script provides a graphical user interface (GUI) to configure an
 
 1. Ensure all script files (`LaunchLab.ps1`, `labFunctions.ps1`) are in the same directory.
 2. The script uses Windows Forms, so ensure that the assembly `System.Windows.Forms` is available on your system.
+3. You need to have a master VHDX file to create new VMs. This file should be located in the same directory as the script files.
+4. You need to have the folder `projects\lab-powershell` in the home directory of the user running the script. Otherwise, the script will not be able to be executed.
 
 ## Functions
 

@@ -3,6 +3,7 @@
 Add-Type -AssemblyName System.Windows.Forms
 
 $form = New-Object System.Windows.Forms.Form
+$form.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon('./lab.ico')
 $form.Text = 'Paramètres du Lab'
 $form.Size = New-Object System.Drawing.Size(400, 680)
 ### DC Name
@@ -98,9 +99,6 @@ $submitButton.Add_Click({
             # Handle job completion
             Write-Verbose "Job completed with the following output:"
             $job | Receive-Job -Keep
-            # Handle job completion
-            Write-Verbose "Job completed with the following output:"
-            $job | Receive-Job -Keep
             [System.Windows.Forms.MessageBox]::Show("Deployment completed successfully!", "Deployment Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
             $form.Close()
 
@@ -115,6 +113,19 @@ $submitButton.Add_Click({
         }
     }
 })
+$form.Add_FormClosing({
+    param($sender, $e)
+    if ($e.CloseReason -eq [System.Windows.Forms.CloseReason]::UserClosing) {
+        $result = [System.Windows.Forms.MessageBox]::Show('Are you sure you want to close?', 'Confirm Closure', [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+        if ($result -ne 'Yes') {
+            $e.Cancel = $true
+            [System.Console]::WriteLine('')  # Clear any return value
+        } else {
+            [Environment]::Exit(0)  # Cleanly exit the application with no error code
+        }
+    }
+})
+
 $form.Controls.Add($submitButton)
 $form.ShowDialog()
 ### End Submit Button
