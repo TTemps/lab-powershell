@@ -11,6 +11,26 @@ This script does not accept any parameters.
 .EXAMPLE
 .\LauchLab.ps1
 This command will launch the lab by sourcing the labFunctions.ps1 script.
+Example of how to call the function with parameters using command line, parameters are mandatory and must be provided
+LaunchLab -dcName "srv-DC-TTemps" `
+          -dcOS "WS2022DC" `
+          -ipAddressDC "192.168.100.2" `
+          -defaultGateway "192.168.100.1" `
+          -localAccountLogin "Administrateur" `
+          -localAccountPassword 'Pa$$w0rd' `
+          -domainName "lab.local" `
+          -domainNetBIOS "LAB" `
+          -domainAdmin "Administrateur" `
+          -domainAdminPassword 'Pa$$w0rd' `
+          -dhcpScopeStartRange "192.168.100.100" `
+          -dhcpScopeEndRange "192.168.100.200" `
+          -dhcpScopeSubnetMask "255.255.255.0" `
+          -dhcpScopeName "MyDHCPScope" `
+          -dhcpScopeDescription "My DHCP Scope" `
+          -vmSrvOs "WS2022DC" `
+          -vmSrvName "srv-TTemps" `
+          -nbVmSrv 3 `
+          -debugVerbose $true
 
 .NOTES
 Author: Tristan Morel
@@ -59,12 +79,10 @@ function launchLab {
         [parameter(Mandatory=$true)]
         [bool]$debugVerbose                            #false
     )
-    #$BackgroundWorker.ReportProgress(0)
     $credentialsDC = New-Credential -login $localAccountLogin -pass $localAccountPassword # Change this to the credentials of the domain controller
     $credentialsDCDomain = New-Credential -login "$domainAdmin@$domainName" -pass $domainAdminPassword
     $dhcpServer = "$dcName.$domainName"
 
-    
     # display verbose message if debug is true
     if ($debug) {
         $VerbosePreference = "Continue"
@@ -72,21 +90,17 @@ function launchLab {
         $VerbosePreference = "SilentlyContinue"
     }
     Remove-AllVMs # Ensure that all VMs are removed before starting the lab
-    #$BackgroundWorker.ReportProgress(10)
     Write-Verbose "Checking if the VM already exists..."
     if (-not(Get-VM -Name $dcName -ErrorAction SilentlyContinue)) {
         Write-Verbose "VM does not exist, creating it..." 
         New-VM-TTemps -vmName $dcName -vmOS $dcOS
-        #$BackgroundWorker.ReportProgress(20)
     }
     else {
         Write-Verbose "VM already exists, starting it..." 
         Start-VM -Name $dcName
     }
-
     # Wait until the vm is fully start
     Wait-VM -Name $dcName
-    #$BackgroundWorker.ReportProgress(30)
     # script change name and change ip 
     $scriptChangeIPandName = {
         $currentName = (Get-WmiObject -Class Win32_ComputerSystem).Name
@@ -99,9 +113,7 @@ function launchLab {
                 Write-Error "Error when changing the computer name. Details: $_"
             }
         }
-        
         $networkInterface = (Get-NetAdapter | Where-Object {$_.InterfaceAlias -eq "Ethernet 2"}).Name
-
         try {
             Write-Verbose "Changing the IP address to $Using:ipAddressDC..." 
             $ipAddress = Get-NetIPAddress -InterfaceAlias $networkInterface -IPAddress $Using:ipAddressDC -ErrorAction SilentlyContinue
@@ -128,8 +140,7 @@ function launchLab {
     Invoke-Command -VMName $dcName -ScriptBlock $scriptChangeIPandName -Credential $credentialsDC
     # Wait until the vm is fully start
     Wait-VM -Name $dcName
-    #$BackgroundWorker.ReportProgress(50)
-    # script that ad feature and 
+    # script that add feature and create the domain
     $scriptCreateAD = {
         
         $domainAdminSecurePassword = ConvertTo-SecureString -String $Using:domainAdminPassword -AsPlainText -Force
@@ -148,11 +159,8 @@ function launchLab {
 
     # New credential for the domain controller (changed because the domain is now created)
     $credentialsDCDomain = New-Credential -login "$domainAdmin@$domainName" -pass "$domainAdminPassword"
-
     # Wait until the vm is fully start
     Wait-VM -Name $dcName
-    #$BackgroundWorker.ReportProgress(60)
-
     # Script that install dhcp feature and create a scope
     $scriptCreateDHCP = {
         Write-Verbose "Installing DHCP feature" 
@@ -171,7 +179,6 @@ function launchLab {
         catch {
             Write-Error "Error when starting the DHCP Server service. Details: $_"
         }
-
         # Add the new DHCP scope
         try {
             Write-Verbose "Adding DHCP scope" 
@@ -194,10 +201,8 @@ function launchLab {
         catch {
             Write-Error "Error when adding the DHCP scope. Details: $_"
         }
-        
     }
     Invoke-Command -VMName $dcName -ScriptBlock $scriptCreateDHCP -Credential $credentialsDCDomain
-    #$BackgroundWorker.ReportProgress(70)
     for ($i = 0; $i -lt $nbVmSrv; $i++) {
         $nameVM = "$vmSrvName-$i" #TODO changer le nom 
         if (-not(Get-VM -Name $nameVM -ErrorAction SilentlyContinue)) {
@@ -211,9 +216,8 @@ function launchLab {
             }
         }
     }
-    #$BackgroundWorker.ReportProgress(80)
     # get the lsit of every vm nammed "srv-TTemps-*"
-    $listVMs = Get-VM | Where-Object { $_.Name -like "srv-TTemps-*"}
+    $listVMs = Get-VM | Where-Object { $_.Name -like "$vmSrvName-*"}
     foreach ($vm in $listVMs) {
         # Configure DHCP network settings
         Start-Sleep -Seconds 10
@@ -224,10 +228,10 @@ function launchLab {
             Write-Verbose "Joining the domain..." 
             try {
                     # Try to join the domain
-                    Add-Computer -DomainName "lab.local" -Credential $Using:credentialsDCDomain -Restart -Force -NewName "$Using:nameVM"
+                    Add-Computer -DomainName $Using:domainName -Credential $Using:credentialsDCDomain -Restart -Force -NewName "$Using:nameVM"
             }
             catch [System.InvalidOperationException] {
-                Write-Error "Failed to join the domain 'lab.local' from VM '$currentName'. Please check the domain name, network connectivity, DNS settings, and credentials."
+                Write-Error "Failed to join the domain $Using:domainName from VM '$nameVM'. Please check the domain name, network connectivity, DNS settings, and credentials."
             }
             catch {
                 Write-Error "An unexpected error occurred: $_"
@@ -238,22 +242,3 @@ function launchLab {
     #$BackgroundWorker.ReportProgress(100)
 }
 . .\labFunctions.ps1
-<# LaunchLab -dcName "srv-DC-TTemps" `
-          -dcOS "WS2022DC" `
-          -ipAddressDC "192.168.100.2" `
-          -defaultGateway "192.168.100.1" `
-          -localAccountLogin "Administrateur" `
-          -localAccountPassword 'Pa$$w0rd' `
-          -domainName "lab.local" `
-          -domainNetBIOS "LAB" `
-          -domainAdmin "Administrateur" `
-          -domainAdminPassword 'Pa$$w0rd' `
-          -dhcpScopeStartRange "192.168.100.100" `
-          -dhcpScopeEndRange "192.168.100.200" `
-          -dhcpScopeSubnetMask "255.255.255.0" `
-          -dhcpScopeName "MyDHCPScope" `
-          -dhcpScopeDescription "My DHCP Scope" `
-          -vmSrvOs "WS2022DC" `
-          -vmSrvName "srv-TTemps" `
-          -nbVmSrv 3 `
-          -debugVerbose $true #>

@@ -1,5 +1,5 @@
-. .\LaunchLab.ps1
-. .\labFunctions.ps1
+. '.\LaunchLab.ps1'
+. '.\labFunctions.ps1'
 Add-Type -AssemblyName System.Windows.Forms
 
 $form = New-Object System.Windows.Forms.Form
@@ -58,8 +58,61 @@ $submitButton.Add_Click({
         $verbose = $false
     }
     if ($check -eq $true) {
+        $jobParams = @{
+            dcName = $dcNameTextBox.Text
+            dcOS = $(Get-OSVM($dcOSComboBox.Text))
+            ipAddressDC = $dcIPTextBox.Text
+            defaultGateway = $dcGatewayTextBox.Text
+            localAccountLogin = $dcLocalAccountTextBox.Text
+            localAccountPassword = $dcLocalPasswordTextBox.Text
+            domainName = $dcDomainTextBox.Text
+            domainNetBIOS = $dcNetBIOSTextBox.Text
+            domainAdmin = $dcAdminAccountTextBox.Text
+            domainAdminPassword = $dcAdminPasswordTextBox.Text
+            dhcpScopeStartRange = $dcDHCPScopeStartTextBox.Text
+            dhcpScopeEndRange = $dcDHCPScopeEndTextBox.Text
+            dhcpScopeSubnetMask = $dcDHCPScopeMaskTextBox.Text
+            dhcpScopeName = $dcDHCPScopeNameTextBox.Text
+            dhcpScopeDescription = $dcDHCPScopeDescriptionTextBox.Text
+            vmSrvOs = $(Get-OSVM($vmSRVOSComboBox.Text))
+            vmSrvName = $vmSRVNameTextBox.Text
+            nbVmSrv = $vmSRVNumbersTextBox.Text
+            debugVerbose = $verbose
+        }
+         # Starting the lab setup in the background
+        $job = Start-Job -ScriptBlock {
+            param($params)
+            # The script block to run in the background job
+            # The script run in the home directory of the current user
+            # so to run the script correctly, it needs to be placed in the home directory of the current user + the relative path
+            $basePath = Get-Location # Get the current location
+            $relativePath = "\projects\lab-powershell\" # Set the relative path
+            $fullPath = Join-Path -Path $basePath -ChildPath $relativePath # Join the paths
+            Set-Location -Path $fullPath # Set the location to the full path
+            . .\LaunchLab.ps1 # Load the LaunchLab script
+            launchLab @params # Launch the lab
+        } -ArgumentList $jobParams -Name "LaunchLabJob"
+        $job | Wait-Job
+        if ($job.State -eq "Completed") {
+            $progressBar.Value = 100
+            # Handle job completion
+            Write-Verbose "Job completed with the following output:"
+            $job | Receive-Job -Keep
+            # Handle job completion
+            Write-Verbose "Job completed with the following output:"
+            $job | Receive-Job -Keep
+            [System.Windows.Forms.MessageBox]::Show("Deployment completed successfully!", "Deployment Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            $form.Close()
 
-        #launchLab -dcName $dcNameTextBox.Text -dcOS $(Get-OSVM($dcOSComboBox.Text)) -ipAddressDC $dcIPTextBox.Text -defaultGateway $dcGatewayTextBox.Text -localAccountLogin $dcLocalAccountTextBox.Text -localAccountPassword $dcLocalPasswordTextBox.Text -domainName $dcDomainTextBox.Text -domainNetBIOS $dcNetBIOSTextBox.Text -domainAdmin $dcAdminAccountTextBox.Text -domainAdminPassword $dcAdminPasswordTextBox.Text -dhcpScopeStartRange $dcDHCPScopeStartTextBox.Text -dhcpScopeEndRange $dcDHCPScopeEndTextBox.Text -dhcpScopeSubnetMask $dcDHCPScopeMaskTextBox.Text -dhcpScopeName $dcDHCPScopeNameTextBox.Text -dhcpScopeDescription $dcDHCPScopeDescriptionTextBox.Text -vmSrvOs $(Get-OSVM($vmSRVOSComboBox.Text)) -vmSrvName $vmSRVNameTextBox.Text -nbVmSrv $vmSRVNumbersTextBox.Text -debugVerbose $verbose
+        } elseif ($job.State -eq "Failed") {
+            # Handle job failure
+            Write-Error "Job failed with the following output:"
+            $job | Receive-Job -Keep
+        } elseif ($job.State -eq "Stopped") {
+            # Handle job being stopped
+            Write-Error "Job was stopped"
+
+        }
     }
 })
 $form.Controls.Add($submitButton)
