@@ -42,7 +42,16 @@ Each GUI component (`TextBox`, `ComboBox`) is tied to a specific configuration a
 
 ## Screenshots
 
-[![Lab Setup Tool](https://i.imgur.com/1Z2ZQ8V.png)](https://i.imgur.com/1Z2ZQ8V.png)
+The following screenshots provide an overview of the GUI and the required folders for the script to run correctly.
+
+# Folders structure required
+![Mandatories Folders required](/screenshots/image1.png)
+
+# GUI
+![Main Menu](/screenshots/image2.png)
+
+# Hyper-V preview
+![Hyper-V preview](/screenshots/image3.png)
 
 ## Troubleshooting
 
