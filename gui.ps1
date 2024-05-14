@@ -1,7 +1,8 @@
+#. .\LaunchLab.ps1
 Add-Type -AssemblyName System.Windows.Forms
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'LaunchLab Parameters'
+$form.Text = 'Paramètres du Lab'
 $form.Size = New-Object System.Drawing.Size(400, 680)
 ### DC Name
 $dcNameLabel = New-Object System.Windows.Forms.Label
@@ -216,7 +217,7 @@ $form.Controls.Add($vmSRVOSLabel)
 $vmSRVOSComboBox = New-Object System.Windows.Forms.ComboBox
 $vmSRVOSComboBox.Location = New-Object System.Drawing.Point(150, 470)
 $vmSRVOSComboBox.Size = New-Object System.Drawing.Size(200, 20)
-$vmSRVOSComboBox.Text = 'ModeleW22'
+$vmSRVOSComboBox.Text = 'ModeleW22DC'
     # Get the names of all files in the folder and add them to the ComboBox
 $folderPath = '.\Masters'
 Get-ChildItem -Path $folderPath -File | ForEach-Object {
@@ -291,10 +292,170 @@ $submitButton.Add_Click({
         Write-Host $dcOS
         $submitCountCheck++
     }
-    if ($submitCountCheck -eq 19) {
-        # Call the LaunchLab function with the parameters
+    if ($dcNameTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC Name is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcNameTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcIPTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC IP Address is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcIPTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcGatewayTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC Gateway is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcGatewayTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcLocalAccountTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC Local Account is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcLocalAccountTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcLocalPasswordTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC Local Password is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcLocalPasswordTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcDomainTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC Domain is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcDomainTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcNetBIOSTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC NetBIOS Name is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcNetBIOSTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcAdminAccountTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC Admin Account is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcAdminAccountTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcAdminPasswordTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DC Admin Password is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcAdminPasswordTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcDHCPScopeStartTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DHCP Scope Start is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcDHCPScopeStartTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcDHCPScopeEndTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DHCP Scope End is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcDHCPScopeEndTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcDHCPScopeMaskTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DHCP Scope Mask is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcDHCPScopeMaskTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcDHCPScopeNameTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DHCP Scope Name is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcDHCPScopeNameTextBox.Text
+        $submitCountCheck++
+    }
+    if ($dcDHCPScopeDescriptionTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('DHCP Scope Description is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $dcDHCPScopeDescriptionTextBox.Text
+        $submitCountCheck++
+    }
+    if ($vmSRVOSComboBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('VM SRV OS is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        switch ($dcOSComboBox.Text) {
+            "ModeleW22DC" { 
+                $vmSRVOS = "WS2022DC" 
+            }
+            "ModeleW10" { 
+                $vmSRVOS = "W10" 
+            }
+            "ModeleW11" { 
+                $vmSRVOS = "W11" 
+            }
+            "ModeleW22" { 
+                $vmSRVOS = "WS2022" 
+            }
+            Default {
+                Write-Host "Invalid OS. Exiting..."
+                Exit
+            }
+        }
+        Write-Host $vmSRVOS
+        $submitCountCheck++
+    }
+    if ($vmSRVNameTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('VM SRV Name is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $vmSRVNameTextBox.Text
+        $submitCountCheck++
+    }
+    if ($vmSRVNumbersTextBox.Text -eq '') {
+        [System.Windows.Forms.MessageBox]::Show('VM SRV Numbers is required', 'Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } else {
+        Write-Host $vmSRVNumbersTextBox.Text
+        $submitCountCheck++
+    }
+    if ($verboseCheckBox.Checked) {
+        $verbose = $true
+    } else {
+        $verbose = $false
+    }
+    Write-Host $verbose
+    if ($submitCountCheck -eq 18) {
+        $progressForm = New-Object System.Windows.Forms.Form
+        $progressForm.Text = 'Progress'
+        $progressForm.Size = New-Object System.Drawing.Size(300, 100)
+
+        # Create the progress bar
+        $progressBar = New-Object System.Windows.Forms.ProgressBar
+        $progressBar.Location = New-Object System.Drawing.Point(10, 10)
+        $progressBar.Size = New-Object System.Drawing.Size(260, 20)
+        $progressForm.Controls.Add($progressBar)
+        # Show the progress form
+        $progressForm.Show()
+        # Create a background worker
+        $backgroundWorker = New-Object System.ComponentModel.BackgroundWorker
+        $backgroundWorker.WorkerReportsProgress = $true
+        # Define what happens when the background worker starts
+        $backgroundWorker.Add_DoWork({
+            # Call the LaunchLab function here
+            #LauchLab -dcOS $dcOS -dcName $dcNameTextBox.Text -dcIP $dcIPTextBox.Text -dcGateway $dcGatewayTextBox.Text -dcLocalAccount $dcLocalAccountTextBox.Text -dcLocalPassword $dcLocalPasswordTextBox.Text -dcDomain $dcDomainTextBox.Text -dcNetBIOS $dcNetBIOSTextBox.Text -dcAdminAccount $dcAdminAccountTextBox.Text -dcAdminPassword $dcAdminPasswordTextBox.Text -dcDHCPScopeStart $dcDHCPScopeStartTextBox.Text -dcDHCPScopeEnd $dcDHCPScopeEndTextBox.Text -dcDHCPScopeMask $dcDHCPScopeMaskTextBox.Text -dcDHCPScopeName $dcDHCPScopeNameTextBox.Text -dcDHCPScopeDescription $dcDHCPScopeDescriptionTextBox.Text -vmSRVOS $vmSRVOS -vmSRVName $vmSRVNameTextBox.Text -vmSRVNumbers $vmSRVNumbersTextBox.Text -verbose $verbose
+
+        })
+        # Define what happens when the background worker reports progress
+        $backgroundWorker.Add_ProgressChanged({
+            param($sender, $e)
+            # Update the progress bar's value
+            $progressBar.Value = $e.ProgressPercentage
+        })
+        # Define what happens when the background worker is done
+        $backgroundWorker.Add_RunWorkerCompleted({
+            # Display a message box when the progress bar is filled
+            [System.Windows.Forms.MessageBox]::Show('Lab Deployed', 'Information', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+
+            # Close the progress form when done
+            $progressForm.Close()
+        })
+        # Start the background worker
+        $backgroundWorker.RunWorkerAsync()
     }
 })
 $form.Controls.Add($submitButton)
-
 $form.ShowDialog()
