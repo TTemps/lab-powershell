@@ -19,7 +19,7 @@ Date: 22/04/2024
 
 function launchLab {
     param (
-        [System.ComponentModel.BackgroundWorker]$BackgroundWorker,
+        #[System.ComponentModel.BackgroundWorker]$BackgroundWorker,
         [parameter(Mandatory=$true)]
         [string]$dcName,                        #srv-DC-TTemps
         [parameter(Mandatory=$true)]
@@ -59,7 +59,7 @@ function launchLab {
         [parameter(Mandatory=$true)]
         [bool]$debugVerbose                            #false
     )
-    $BackgroundWorker.ReportProgress(0)
+    #$BackgroundWorker.ReportProgress(0)
     $credentialsDC = New-Credential -login $localAccountLogin -pass $localAccountPassword # Change this to the credentials of the domain controller
     $credentialsDCDomain = New-Credential -login "$domainAdmin@$domainName" -pass $domainAdminPassword
     $dhcpServer = "$dcName.$domainName"
@@ -72,12 +72,12 @@ function launchLab {
         $VerbosePreference = "SilentlyContinue"
     }
     Remove-AllVMs # Ensure that all VMs are removed before starting the lab
-    $BackgroundWorker.ReportProgress(10)
+    #$BackgroundWorker.ReportProgress(10)
     Write-Verbose "Checking if the VM already exists..."
     if (-not(Get-VM -Name $dcName -ErrorAction SilentlyContinue)) {
         Write-Verbose "VM does not exist, creating it..." 
         New-VM-TTemps -vmName $dcName -vmOS $dcOS
-        $BackgroundWorker.ReportProgress(20)
+        #$BackgroundWorker.ReportProgress(20)
     }
     else {
         Write-Verbose "VM already exists, starting it..." 
@@ -86,7 +86,7 @@ function launchLab {
 
     # Wait until the vm is fully start
     Wait-VM -Name $dcName
-    $BackgroundWorker.ReportProgress(30)
+    #$BackgroundWorker.ReportProgress(30)
     # script change name and change ip 
     $scriptChangeIPandName = {
         $currentName = (Get-WmiObject -Class Win32_ComputerSystem).Name
@@ -128,7 +128,7 @@ function launchLab {
     Invoke-Command -VMName $dcName -ScriptBlock $scriptChangeIPandName -Credential $credentialsDC
     # Wait until the vm is fully start
     Wait-VM -Name $dcName
-    $BackgroundWorker.ReportProgress(50)
+    #$BackgroundWorker.ReportProgress(50)
     # script that ad feature and 
     $scriptCreateAD = {
         
@@ -151,7 +151,7 @@ function launchLab {
 
     # Wait until the vm is fully start
     Wait-VM -Name $dcName
-    $BackgroundWorker.ReportProgress(60)
+    #$BackgroundWorker.ReportProgress(60)
 
     # Script that install dhcp feature and create a scope
     $scriptCreateDHCP = {
@@ -197,7 +197,7 @@ function launchLab {
         
     }
     Invoke-Command -VMName $dcName -ScriptBlock $scriptCreateDHCP -Credential $credentialsDCDomain
-    $BackgroundWorker.ReportProgress(70)
+    #$BackgroundWorker.ReportProgress(70)
     for ($i = 0; $i -lt $nbVmSrv; $i++) {
         $nameVM = "$vmSrvName-$i" #TODO changer le nom 
         if (-not(Get-VM -Name $nameVM -ErrorAction SilentlyContinue)) {
@@ -211,7 +211,7 @@ function launchLab {
             }
         }
     }
-    $BackgroundWorker.ReportProgress(80)
+    #$BackgroundWorker.ReportProgress(80)
     # get the lsit of every vm nammed "srv-TTemps-*"
     $listVMs = Get-VM | Where-Object { $_.Name -like "srv-TTemps-*"}
     foreach ($vm in $listVMs) {
@@ -235,7 +235,7 @@ function launchLab {
         }
         Invoke-Command -VMName $vm.Name -ScriptBlock $scriptConfigureDHCP -Credential $credentialsDC
     }    
-    $BackgroundWorker.ReportProgress(100)
+    #$BackgroundWorker.ReportProgress(100)
 }
 . .\labFunctions.ps1
 <# LaunchLab -dcName "srv-DC-TTemps" `
