@@ -14,6 +14,7 @@ This PowerShell script provides a graphical user interface (GUI) to configure an
 
 - Windows PowerShell 5.1 or higher.
 - Access to administrative privileges might be required for certain operations.
+- You need to have the "OS" pre-confiugred in a .vhdx
 
 ## Setup
 
